@@ -41,7 +41,7 @@ class field:
         
     def plot(self):
         if self.simulation_mesh.dims == 1:
-            figure(1)
+            plt.figure()
             suptitle('Initial condition')
             
             subplot(211)
@@ -53,7 +53,7 @@ class field:
             plot(simulation_mesh.x_np, angle(self.np_array),'-')
             
         elif self.simulation_mesh.dims ==2:
-            figure(1)
+            plt.figure()
             suptitle('Initial condition')
             
                         
@@ -236,7 +236,7 @@ class simulation_config:
         print("Nonlinearities configuration files created!")
       
     def plot(self,nl_vectors=[]):
-        fig=figure(1)
+        fig = plt.figure()
         
         lines = 2 + 1 + int((self.number_nl_vectors-1)/2)
         
