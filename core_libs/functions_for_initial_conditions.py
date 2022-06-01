@@ -19,9 +19,9 @@ from scipy.special import jv, jn
 
 
 #a simple gaussian function in 2d
-def gaussian_2d_field(x_af,y_af,A,w,x0,y0,vx,vy):
-    new_field = A*af.exp(-((x_af - x0)*(x_af - x0)+ (y_af - y0)*(y_af - y0)) / 
-                                    (w*w))*af.exp(1.0j*(vx*(x_af-x0)+ vy*(y_af-y0)))
+def gaussian_2d_field(x_af , y_af, A, w, x0, y0, vx, vy):
+    new_field = A*af.exp(-((x_af - x0)*(x_af - x0) + (y_af - y0)*(y_af - y0)) / (w*w))
+    new_field = new_field*af.exp(1.0j*(vx*(x_af-x0)+ vy*(y_af-y0)))
     return new_field
 
 
@@ -70,10 +70,17 @@ def bessel_2d_field_old(x_af,y_af,A,x0,y0,d):
     return (A*(af.pow(af.abs(my_field)/(2*pi),2))) # * (r <= 2*d)
 
 
-def bessel_2d(x_af, y_af, A, x0, y0, d):
+def bessel_2d(x_af, y_af, defect_power, defect_intensity_normalization, x0, y0, d, factor_t):
    
-    np_array =  A*(jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d ))**1.0 
-    return af.to_array(np_array)
+    np_array =  (jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d ))**1.0 
+    
+    norm = np.sum(np.abs(np_array)**2.0)*(x_af[1,0]-x_af[0,0])*(y_af[0,1]-y_af[0,0])/factor_t/factor_t*1e4
+    
+    I_defect = defect_power/norm
+    
+    I_defect_normalized = I_defect/defect_intensity_normalization
+    
+    return af.to_array(np.sqrt(I_defect_normalized)*np_array)
 
 def add_field_from_array_with_velocity(array_to_add, x_af, y_af, A, x0, y0, vx, vy):
     new_field = af.interop.from_ndarray(A*array_to_add)*af.exp(1.0j*(vx*(x_af-x0)+ vy*(y_af-y0)))
