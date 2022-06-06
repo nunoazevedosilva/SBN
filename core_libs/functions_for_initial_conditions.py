@@ -122,6 +122,30 @@ def bessel_2d(x_af, y_af, defect_power, defect_intensity_normalization, x0, y0, 
     
     return af.to_array(np.sqrt(I_defect_normalized)*np_array)
 
+def droplet_2d(x_af, y_af, defect_power, defect_intensity_normalization, x0, y0, d1, d2, kz_times_z, factor_t):
+   
+    np_array =  (jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d1 ))**1.0 
+    np_array +=  (jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d2 ))**1.0 
+    
+    np_array = np.exp(1j*kz_times_z)
+    
+    x_max = np.max(x_af)/factor_t*1e3
+    y_max = np.max(y_af)/factor_t*1e3
+    
+    d_x = (x_af[1,0]-x_af[0,0])
+    d_y = (y_af[0,1]-y_af[0,0])
+    
+    d_x *= 5.0/x_max
+    d_y *= 5.0/y_max
+    
+    norm = np.sum(np.abs(np_array)**2.0)*d_x*d_y/factor_t/factor_t*1e4
+    
+    I_defect = defect_power/norm
+    
+    I_defect_normalized = I_defect/defect_intensity_normalization
+    
+    return af.to_array(np.sqrt(I_defect_normalized)*np_array)
+
 
 def add_field_from_array_with_velocity_normalized(array_to_add, x_af, y_af, Power_beam, intensity_normalization, 
                                                 x0, y0, vx, vy, factor_t):
