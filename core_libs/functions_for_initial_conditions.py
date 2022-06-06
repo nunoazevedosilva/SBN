@@ -24,6 +24,16 @@ def gaussian_2d_field(x_af , y_af, A, w, x0, y0, vx, vy):
     new_field = new_field*af.exp(1.0j*(vx*(x_af-x0)+ vy*(y_af-y0)))
     return new_field
 
+#a simple gaussian function in 2d
+def gaussian_2d_field_power_normalized(x_af , y_af, w, x0, y0, vx, vy):
+    new_field = af.exp(-((x_af - x0)*(x_af - x0) + (y_af - y0)*(y_af - y0)) / (w*w))
+    new_field = new_field*af.exp(1.0j*(vx*(x_af-x0)+ vy*(y_af-y0)))
+    
+    norm = np.sum(np.abs(new_field)**2.0)*(x_af[1,0]-x_af[0,0])*(y_af[0,1]-  y_af[0,0])
+    
+    return af.to_array(new_field/np.sqrt(norm))
+    
+
 
 def gaussian_2d_field_int(x_af,y_af,A,w,x0,y0,vx,vy):
     new_field = A*af.exp(-2*((x_af - x0)*(x_af - x0)+ (y_af - y0)*(y_af - y0)) / 
@@ -74,13 +84,35 @@ def bessel_2d(x_af, y_af, defect_power, defect_intensity_normalization, x0, y0, 
    
     np_array =  (jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d ))**1.0 
     
-    norm = np.sum(np.abs(np_array)**2.0)*(x_af[1,0]-x_af[0,0])*(y_af[0,1]-y_af[0,0])/factor_t/factor_t*1e4
+    d_x = x_af[1,0]-x_af[0,0]
+    d_y = y_af[0,1]-y_af[0,0]
+    
+    norm = np.sum(np.abs(np_array)**2.0)*d_x*d_y/factor_t/factor_t*1e4
     
     I_defect = defect_power/norm
     
+
     I_defect_normalized = I_defect/defect_intensity_normalization
     
     return af.to_array(np.sqrt(I_defect_normalized)*np_array)
+
+def add_field_from_array_with_velocity_normalized(array_to_add, x_af, y_af, Power_beam, intensity_normalization, 
+                                                x0, y0, vx, vy, factor_t):
+    
+    
+    
+    d_x = x_af[1,0] - x_af[0,0]
+    d_y = y_af[0,1] - y_af[0,0]
+    
+    norm = np.sum(np.abs(array_to_add)**2.0)*d_x*d_y/factor_t/factor_t*1e4
+    
+    I_beam = Power_beam/norm
+    I_beam_normalized = I_beam/intensity_normalization
+    
+    new_field = af.interop.from_ndarray(np.sqrt(I_beam_normalized)*array_to_add)*af.exp(1.0j*(vx*(x_af-x0)+ vy*(y_af-y0)))
+    
+    return af.to_array(new_field)
+
 
 def add_field_from_array_with_velocity(array_to_add, x_af, y_af, A, x0, y0, vx, vy):
     new_field = af.interop.from_ndarray(A*array_to_add)*af.exp(1.0j*(vx*(x_af-x0)+ vy*(y_af-y0)))
