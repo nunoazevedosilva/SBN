@@ -63,7 +63,7 @@ def whitenoise_2d_field(x_af,A):
                          
     return new_field
 
-def bessel_2d_field_old(x_af,y_af,A,x0,y0,d):
+def bessel_2d_field_old(x_af,y_af,defect_power, defect_intensity_normalization, x0, y0, d, factor_t):
     v = linspace(0, 2*pi, 1000)
     dv = v[1] - v[0]
        
@@ -77,24 +77,51 @@ def bessel_2d_field_old(x_af,y_af,A,x0,y0,d):
     for k in v:
         my_field += af.exp(1.0j * resultado * np.cos(k))*dv
        
-    return (A*(af.pow(af.abs(my_field)/(2*pi),2))) # * (r <= 2*d)
+    
+    np_array = af.sqrt(((af.pow(af.abs(my_field)/(2*pi),2))))
+    
+    d_x = np.array(x_af[1,0]-x_af[0,0])
+    d_y = np.array(y_af[0,1]-y_af[0,0])
+    
+
+    np_array1 = np.array(np_array, order="F")
+    norm = np.sum(np.abs(np_array1)**2.0)*d_x*d_y/factor_t/factor_t*1e4
+    
+    I_defect = defect_power/norm
+    
+    
+
+    I_defect_normalized = I_defect/defect_intensity_normalization
+
+    print(type(np_array1))
+    print(I_defect_normalized)
+    
+    return af.to_array(np.sqrt(I_defect_normalized[0])*np.array(np_array, order="F"))
+    
+
 
 
 def bessel_2d(x_af, y_af, defect_power, defect_intensity_normalization, x0, y0, d, factor_t):
    
     np_array =  (jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d ))**1.0 
     
-    d_x = x_af[1,0]-x_af[0,0]
-    d_y = y_af[0,1]-y_af[0,0]
+    x_max = np.max(x_af)/factor_t*1e3
+    y_max = np.max(y_af)/factor_t*1e3
+    
+    d_x = (x_af[1,0]-x_af[0,0])
+    d_y = (y_af[0,1]-y_af[0,0])
+    
+    d_x *= 5.0/x_max
+    d_y *= 5.0/y_max
     
     norm = np.sum(np.abs(np_array)**2.0)*d_x*d_y/factor_t/factor_t*1e4
     
     I_defect = defect_power/norm
     
-
     I_defect_normalized = I_defect/defect_intensity_normalization
     
     return af.to_array(np.sqrt(I_defect_normalized)*np_array)
+
 
 def add_field_from_array_with_velocity_normalized(array_to_add, x_af, y_af, Power_beam, intensity_normalization, 
                                                 x0, y0, vx, vy, factor_t):
@@ -115,5 +142,7 @@ def add_field_from_array_with_velocity_normalized(array_to_add, x_af, y_af, Powe
 
 
 def add_field_from_array_with_velocity(array_to_add, x_af, y_af, A, x0, y0, vx, vy):
+    
     new_field = af.interop.from_ndarray(A*array_to_add)*af.exp(1.0j*(vx*(x_af-x0)+ vy*(y_af-y0)))
+    
     return new_field
