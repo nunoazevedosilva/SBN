@@ -122,7 +122,7 @@ def bessel_2d(x_af, y_af, defect_power, defect_intensity_normalization, x0, y0, 
     
     return af.to_array(np.sqrt(I_defect_normalized)*np_array)
 
-def droplet_2d(x_af, y_af, defect_power, defect_intensity_normalization, x0, y0, d1, d2, kz_times_z, factor_t):
+def droplet_2d_old(x_af, y_af, defect_power, defect_intensity_normalization, x0, y0, d1, d2, kz_times_z1, kz_times_z2, factor_t):
    
     np_array =  (jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d1 ))**1.0 
     np_array +=  (jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d2 ))**1.0 
@@ -171,12 +171,11 @@ def add_field_from_array_with_velocity(array_to_add, x_af, y_af, A, x0, y0, vx, 
     
     return new_field
 
-def droplet_2d(x_af, y_af, defect_power, defect_intensity_normalization, x0, y0, d1, d2, kz_times_z, factor_t):
+def droplet_2d(x_af, y_af, defect_power, defect_intensity_normalization, x0, y0, d1, d2, kz_times_z1, kz_times_z2, factor_t):
    
-    np_array =  (jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d1 ))**1.0 
-    np_array +=  (jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d2 ))**1.0 
+    np_array =  (jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d1 ))**1.0*np.exp(1j*kz_times_z1)
+    np_array +=  (jn(0, 2.4048*(np.sqrt((x_af-x0)**2.0 + (y_af-y0)**2.0))/d2 ))**1.0*np.exp(1j*kz_times_z2)
     np_array = np_array.astype(np.complex128)
-    np_array *= np.exp(1j*kz_times_z)
     
     x_max = np.max(x_af)/factor_t*1e3
     y_max = np.max(y_af)/factor_t*1e3
