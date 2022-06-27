@@ -165,7 +165,7 @@ class simulation_config:
         
     def gen_config_file(self,nl_numbers,nl_vectors):
         
-        print("**Configuring Mesh:")
+        #print("**Configuring Mesh:")
 
         L0= [self.dims, self.Nx, self.Ny, self.Nt, self.Nz, 
             self.total_steps, self.stride,self.dx,self.dy,self.dz,
@@ -174,29 +174,30 @@ class simulation_config:
         try:
             os.mkdir('config_folder')
         except:
-            print("Config folder already exists, skipping mkdir")
+            pass
+            #print("Config folder already exists, skipping mkdir")
 
 
         config_file = open("config_folder/config_file.txt","w")
         config_file.writelines(L)
         config_file.close()
         
-        print("Configuration file created!")
+        #print("Configuration file created!")
         
         
         #########################################################
         
-        print('**Configuring Initial Conditions')
+        #print('**Configuring Initial Conditions')
         
         self.initial_condition.save_field()
         self.initial_condition2.save_field2()
         
-        print("Initial condition file created!")
+        #print("Initial condition file created!")
 
         ########################################################
         
         
-        print("**Configuring nonlinearities:")
+        #print("**Configuring nonlinearities:")
         
         if self.number_nl_numbers != len(nl_numbers):
             print('Warning, expected '+str(self.number_nl_numbers) + 'got '+str(len(nl_numbers)) +' nonlinearities type number')
@@ -233,7 +234,7 @@ class simulation_config:
 
         nl_file.close()
         
-        print("Nonlinearities configuration files created!")
+        #print("Nonlinearities configuration files created!")
       
     def plot(self,nl_vectors=[]):
         fig = plt.figure()
