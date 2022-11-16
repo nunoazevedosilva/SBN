@@ -63,6 +63,14 @@ def whitenoise_2d_field(x_af,A):
                          
     return new_field
 
+def whitenoise_2d_field_v2(x_af, A, B):
+    noise_1 = 0.5*(2.0*af.randu(x_af.dims()[0], x_af.dims()[1]) - 1.0)
+    noise_2 = 0.5*(2.0*af.randu(x_af.dims()[0], x_af.dims()[1]) - 1.0)
+    
+    new_field = A*noise_1*af.exp(1.0j*B*pi*noise_2)
+                         
+    return new_field
+
 def bessel_2d_field_old(x_af,y_af,defect_power, defect_intensity_normalization, x0, y0, d, factor_t):
     v = linspace(0, 2*pi, 1000)
     dv = v[1] - v[0]
@@ -148,16 +156,23 @@ def droplet_2d_old(x_af, y_af, defect_power, defect_intensity_normalization, x0,
 
 
 def add_field_from_array_with_velocity_normalized(array_to_add, x_af, y_af, Power_beam, intensity_normalization, 
-                                                x0, y0, vx, vy, factor_t):
+                                                x0, y0, vx, vy, factor_t, reference_norm=0):
     
     
     
     d_x = x_af[1,0] - x_af[0,0]
     d_y = y_af[0,1] - y_af[0,0]
     
-    norm = np.sum(np.abs(array_to_add)**2.0)*d_x*d_y/factor_t/factor_t*1e4
+
     
-    I_beam = Power_beam/norm
+    current_norm = np.sum(np.abs(array_to_add)**2.0)*d_x*d_y/factor_t/factor_t*1e4
+    
+    if reference_norm==0:
+        reference_norm = current_norm
+    
+    array_to_add = array_to_add*np.sqrt(reference_norm/current_norm)
+    
+    I_beam = Power_beam/reference_norm
     I_beam_normalized = I_beam/intensity_normalization
     
     new_field = af.interop.from_ndarray(np.sqrt(I_beam_normalized)*array_to_add)*af.exp(1.0j*(vx*(x_af-x0)+ vy*(y_af-y0)))

@@ -19,3 +19,6 @@ def bessel_function(x, x0, w_b):
 
 def gaus(x, I0, x0, w_z0):
     return I0*np.exp(-2.0*(x-x0)**2/(w_z0**2))
+
+def gaus_force(x, I0, x0, w_z0):
+    return I0*np.exp(-(x-x0)**2/(2.0*w_z0**2))
